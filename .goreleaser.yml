@@ -8,7 +8,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - "-s -w"
+      - "-s -w -X main.version={{ .Version }} -X main.commit={{ .Commit }}"
     goos:
       - "darwin"
       - "freebsd"
@@ -23,16 +23,24 @@ builds:
       - "6"
       - "7"
 
+archives:
+  - format: tar.gz
+    name_template: |-
+      {{ .ProjectName }}-{{ .Version }}_{{ .Os }}_{{ if eq .Arch "all" }}universal{{ else }}{{ .Arch }}{{ end }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}
+    wrap_in_directory: true
+    format_overrides:
+      - goos: windows
+        format: zip
+    replacements:
+      darwin: macos
+
 checksum:
   name_template: "checksums.txt"
 snapshot:
   name_template: "{{ .Tag }}-next"
+
 changelog:
-  sort: asc
-  filters:
-    exclude:
-      - "^docs:"
-      - "^test:"
+  skip: true
 
 dockers:
   - image_templates:
